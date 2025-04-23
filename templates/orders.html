@@ -1,0 +1,76 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h3>🧾 Manage Orders</h3>
+
+<form method="POST" class="row g-2 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">Select Table</label>
+        <select name="table" class="form-select" required>
+            <option value="">Choose...</option>
+            {% for t in tables %}
+            <option value="{{ t.number }}">Table {{ t.number }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Select Menu Item</label>
+        <select name="item" class="form-select" required>
+            <option value="">Choose...</option>
+            {% for m in menu %}
+            <option value="{{ m.name }}" title="Stock: {{ m.quantity }}">
+                {{ m.name }} (₹{{ '%.2f' | format(m.price) }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Quantity</label>
+        <input type="number" name="quantity" min="1" value="1" class="form-control" required>
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-warning w-100">🧾 Place Order</button>
+    </div>
+</form>
+
+{% if orders %}
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Table</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Total (₹)</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for o in orders %}
+        <tr>
+            <td><span class="badge bg-primary">#{{ o.table }}</span></td>
+            <td>{{ o.item }}</td>
+            <td>{{ o.quantity }}</td>
+            <td>₹{{ '%.2f' | format(o.total) }}</td>
+            <td>
+                <a href="/delete_order/{{ loop.index0 }}" class="btn btn-sm btn-danger">🗑️ Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">No orders yet. Place one to get started!</div>
+{% endif %}
+
+{% if bill_summary %}
+<h5 class="mt-4">💰 Table-Wise Total Bill</h5>
+<ul class="list-group w-50">
+    {% for table, total in bill_summary.items() %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <strong>Table {{ table }}</strong>
+        <span class="badge bg-success fs-6">₹{{ '%.2f' | format(total) }}</span>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
